@@ -46,8 +46,7 @@ const customers = [
 }
 ];
 
-function App(props) {
-  const { classes } = props;
+function App({ classes }) {
   return (
     <Paper className={classes.root}>
       <Table className={classes.table}>

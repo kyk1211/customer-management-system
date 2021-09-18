@@ -7,6 +7,7 @@ import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import { withStyles } from '@material-ui/core/styles';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 const styles = (theme) => ({
   root: {
@@ -16,22 +17,35 @@ const styles = (theme) => ({
   },
   table: {
     minWidth: 1080,
-  }
+  },
+  progress: {
+    margin: theme.spacing(2),
+  },
 });
 
 function App({ classes }) {
   const [customers, setCustomers] = useState([]);
+  const [completed, setCompleted] = useState(0);
+  const [isLoaded, setIsLoaded] = useState(false);
   useEffect(() => {
+    const timer = setInterval(() => {
+      setCompleted((prevCompleted) => (prevCompleted >= 100 ? 0 : prevCompleted + 1));
+    }, 80);
     callApi()
       .then((res) => setCustomers([...res]))
       .catch((err) => console.log(err));
+    return () => {
+      clearInterval(timer);
+    };
   }, []);
 
   const callApi = async () => {
     const response = await fetch('/api/customers');
     const body = await response.json();
+    setIsLoaded(true);
     return body;
-  }
+  };
+
   return (
     <Paper className={classes.root}>
       <Table className={classes.table}>
@@ -46,7 +60,24 @@ function App({ classes }) {
           </TableRow>
         </TableHead>
         <TableBody>
-          {customers?.map((customer) => (<Customer key={customer.id} id={customer.id} name={customer.name} img={customer.img} sex={customer.sex} job={customer.job} birth={customer.birth} />))}
+          {isLoaded ? 
+            customers.map((customer) => {
+              return (<Customer 
+                key={customer.id} 
+                id={customer.id} 
+                name={customer.name} 
+                img={customer.img} 
+                sex={customer.sex} 
+                job={customer.job} 
+                birth={customer.birth} 
+              />)
+            }) : 
+            <TableRow>
+              <TableCell colSpan='6' align='center'>
+                <CircularProgress className={classes.progress} variant="determinate" value={completed} />
+              </TableCell>
+            </TableRow>
+          }
         </TableBody>
       </Table>
     </Paper>

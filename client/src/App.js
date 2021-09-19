@@ -66,7 +66,7 @@ function App({ classes }) {
                 key={customer.id} 
                 id={customer.id} 
                 name={customer.name} 
-                img={customer.img} 
+                image={customer.image} 
                 sex={customer.sex} 
                 job={customer.job} 
                 birth={customer.birth} 

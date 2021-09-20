@@ -29,7 +29,6 @@ function App({ classes }) {
   const [completed, setCompleted] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
 
-
   useEffect(() => {
     const timer = setInterval(() => {
       setCompleted((prevCompleted) => (prevCompleted >= 100 ? 0 : prevCompleted + 1));

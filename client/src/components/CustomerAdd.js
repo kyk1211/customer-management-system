@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from 'axios';
 
-const CustomerAdd = () => {
+const CustomerAdd = ({ stateRefresh }) => {
   const [file, setFile] = useState(null);
   const [userName, setUserName] = useState("");
   const [birth, setBirth] = useState("");
@@ -15,6 +15,7 @@ const CustomerAdd = () => {
     addCustomer()
       .then((res) => {
         console.log(res.data);
+        stateRefresh();
       });
     setFile(null);
     setUserName("");
@@ -43,6 +44,9 @@ const CustomerAdd = () => {
         break;
       case 'job':
         setJob(e.target.value);
+        break;
+      default:
+        console.log(e.target.name);
         break;
     }
   };

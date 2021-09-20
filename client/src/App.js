@@ -28,6 +28,8 @@ function App({ classes }) {
   const [customers, setCustomers] = useState([]);
   const [completed, setCompleted] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
+
+
   useEffect(() => {
     const timer = setInterval(() => {
       setCompleted((prevCompleted) => (prevCompleted >= 100 ? 0 : prevCompleted + 1));
@@ -38,13 +40,20 @@ function App({ classes }) {
     return () => {
       clearInterval(timer);
     };
-  }, [customers]);
-
+  }, []);
+  
   const callApi = async () => {
     const response = await fetch('/api/customers');
     const body = await response.json();
     setIsLoaded(true);
     return body;
+  };
+  
+  const stateRefresh = () => {
+    setCompleted(0);
+    callApi()
+      .then((res) => setCustomers([...res]))
+      .catch((err) => console.log(err));
   };
 
   return (
@@ -59,6 +68,7 @@ function App({ classes }) {
               <TableCell>생년월일</TableCell>
               <TableCell>성별</TableCell>
               <TableCell>직업</TableCell>
+              <TableCell>설정</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -71,7 +81,8 @@ function App({ classes }) {
                   image={customer.image} 
                   sex={customer.sex} 
                   job={customer.job} 
-                  birth={customer.birth} 
+                  birth={customer.birth}
+                  stateRefresh={stateRefresh}
                 />)
               }) : 
               <TableRow>
@@ -83,7 +94,7 @@ function App({ classes }) {
           </TableBody>
         </Table>
       </Paper>
-      <CustomerAdd />
+      <CustomerAdd stateRefresh={stateRefresh} />
     </>
   );
 }

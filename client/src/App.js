@@ -1,6 +1,7 @@
 import Customer from './components/Customer';
 import CustomerAdd from './components/CustomerAdd';
 import React, { useEffect, useState } from 'react';
+
 import Paper from '@material-ui/core/Paper';
 import Table from '@material-ui/core/Table';
 import TableBody from '@material-ui/core/TableBody';
@@ -9,18 +10,28 @@ import TableRow from '@material-ui/core/TableRow';
 import TableCell from '@material-ui/core/TableCell';
 import { withStyles } from '@material-ui/core/styles';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import SearchAppBar from './components/SearchAppBar';
 
 const styles = (theme) => ({
   root: {
     width: '100%',
-    marginTop: theme.spacing(3),
-    overflowX: 'auto'
-  },
-  table: {
     minWidth: 1080,
+  },
+  paper: {
+    marginLeft: 18,
+    marginRight: 18
   },
   progress: {
     margin: theme.spacing(2),
+  },
+  tableHead: {
+    fontSize: '1.0rem'
+  },
+  menu: {
+    marginTop: 15,
+    marginBottom: 15,
+    display: 'flex',
+    justifyContent: 'center'
   },
 });
 
@@ -28,6 +39,7 @@ function App({ classes }) {
   const [customers, setCustomers] = useState([]);
   const [completed, setCompleted] = useState(0);
   const [isLoaded, setIsLoaded] = useState(false);
+  const [searchKey, setSearchKey] = useState("");
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -50,40 +62,43 @@ function App({ classes }) {
   
   const stateRefresh = () => {
     setCompleted(0);
+    setSearchKey("");
     callApi()
       .then((res) => setCustomers([...res]))
       .catch((err) => console.log(err));
   };
 
+  const handleValueChange = (e) => {
+    setSearchKey(e.target.value);
+  };
+
+  const filteredData = (data) => {
+    data = data.filter(c => {
+      return c.name.indexOf(searchKey) > -1;
+    });
+    return data.map(c => {
+      return <Customer stateRefresh={stateRefresh} key={c.id} id={c.id} image={c.image} name={c.name} birth={c.birth} sex={c.sex} job={c.sex} />
+    });
+  };
+
+  const cellList = ['번호', '프로필 이미지', '이름', '생년월일', '성별', '직업', '설정'];
+
   return (
-    <>
-      <Paper className={classes.root}>
-        <Table className={classes.table}>
+    <div className={classes.root}>
+      <SearchAppBar handleValueChange={handleValueChange} searchKey={searchKey}/>
+      <div className={classes.menu}>
+        <CustomerAdd stateRefresh={stateRefresh} />
+      </div>
+      <Paper className={classes.paper}>
+        <Table>
           <TableHead>
             <TableRow>
-              <TableCell>번호</TableCell>
-              <TableCell>이미지</TableCell>
-              <TableCell>이름</TableCell>
-              <TableCell>생년월일</TableCell>
-              <TableCell>성별</TableCell>
-              <TableCell>직업</TableCell>
-              <TableCell>설정</TableCell>
+              {cellList.map((cell) => <TableCell className={classes.tableHead}>{cell}</TableCell>)}
             </TableRow>
           </TableHead>
           <TableBody>
             {isLoaded ? 
-              customers.map((customer) => {
-                return (<Customer 
-                  key={customer.id} 
-                  id={customer.id} 
-                  name={customer.name} 
-                  image={customer.image} 
-                  sex={customer.sex} 
-                  job={customer.job} 
-                  birth={customer.birth}
-                  stateRefresh={stateRefresh}
-                />)
-              }) : 
+              filteredData(customers) : 
               <TableRow>
                 <TableCell colSpan='6' align='center'>
                   <CircularProgress className={classes.progress} variant="determinate" value={completed} />
@@ -93,8 +108,7 @@ function App({ classes }) {
           </TableBody>
         </Table>
       </Paper>
-      <CustomerAdd stateRefresh={stateRefresh} />
-    </>
+    </div>
   );
 }
 
